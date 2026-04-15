@@ -1,0 +1,262 @@
+/* ---- Layout ---- */
+.frontify-element {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 14px;
+  color: #1d1d1b;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+/* ---- Toolbar ---- */
+.frontify-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.frontify-toolbar--finder-open {
+  margin-bottom: 0;
+}
+
+/* ---- Buttons ---- */
+.frontify-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, opacity 0.15s;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.frontify-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.frontify-btn--primary {
+  background-color: #3751a5;
+  color: #fff;
+  border-color: #3751a5;
+}
+
+.frontify-btn--primary:not(:disabled):hover {
+  background-color: #2d4490;
+  border-color: #2d4490;
+}
+
+.frontify-btn--secondary {
+  background-color: #fff;
+  color: #3751a5;
+  border-color: #c8d0e8;
+}
+
+.frontify-btn--secondary:not(:disabled):hover {
+  background-color: #f0f3fb;
+  border-color: #3751a5;
+}
+
+.frontify-btn--danger {
+  background-color: #fff;
+  color: #cc2b00;
+  border-color: #f0c0b0;
+}
+
+.frontify-btn--danger:not(:disabled):hover {
+  background-color: #fff5f2;
+  border-color: #cc2b00;
+}
+
+.frontify-btn svg {
+  flex-shrink: 0;
+}
+
+/* ---- Frontify logo in button ---- */
+.frontify-logo {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* ---- Empty state ---- */
+.frontify-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 16px;
+  border: 2px dashed #d0d5e8;
+  border-radius: 6px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.frontify-empty__icon {
+  width: 40px;
+  height: 40px;
+  opacity: 0.4;
+}
+
+.frontify-empty__text {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ---- Asset grid ---- */
+.frontify-assets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+/* ---- Asset card ---- */
+.frontify-asset-card {
+  position: relative;
+  border: 1px solid #e0e4f0;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+  transition: box-shadow 0.15s;
+}
+
+.frontify-asset-card:hover {
+  box-shadow: 0 2px 8px rgba(55, 81, 165, 0.15);
+}
+
+.frontify-asset-card__preview {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: #f5f6fa;
+  display: block;
+}
+
+.frontify-asset-card__placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #f0f2f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.frontify-asset-card__placeholder-icon {
+  width: 32px;
+  height: 32px;
+  color: #9aa3c0;
+}
+
+.frontify-asset-card__info {
+  padding: 8px;
+}
+
+.frontify-asset-card__title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1d1d1b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0 0 4px;
+}
+
+.frontify-asset-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.frontify-asset-card__type {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #3751a5;
+  background: #eef1fb;
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+.frontify-asset-card__size {
+  font-size: 10px;
+  color: #6b7280;
+}
+
+.frontify-asset-card__remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #d0d5e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background-color 0.15s;
+  padding: 0;
+  color: #6b7280;
+}
+
+.frontify-asset-card:hover .frontify-asset-card__remove {
+  opacity: 1;
+}
+
+.frontify-asset-card__remove:hover {
+  background: #fff;
+  color: #cc2b00;
+  border-color: #cc2b00;
+}
+
+.frontify-asset-card__remove svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* ---- Finder panel ---- */
+.frontify-finder-panel {
+  border: 1px solid #c8d0e8;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.frontify-finder-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f5f6fa;
+  border-bottom: 1px solid #e0e4f0;
+}
+
+.frontify-finder-panel__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3751a5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.frontify-finder-container {
+  width: 100%;
+  min-height: 560px;
+}
+
+.frontify-finder-container iframe {
+  width: 100% !important;
+  min-height: 560px !important;
+  border: none !important;
+}

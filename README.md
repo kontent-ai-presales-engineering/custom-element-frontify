@@ -1,144 +1,161 @@
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
-
 [![Discord][discord-shield]][discord-url]
 
+# Kontent.ai — Frontify Custom Element
 
-# Kontent.ai React Custom Element Starter
+A [Kontent.ai custom element](https://kontent.ai/learn/docs/custom-elements) that lets content editors browse and select assets from [Frontify](https://www.frontify.com/) without leaving the Kontent.ai content editor.
 
-This starter can be used to jumpstart your own custom element development with Kontent.ai. It contains all the necessary tools for creating a new [Custom Element](https://kontent.ai/learn/docs/custom-elements), a UI extension for content editors.
+The element uses the [Frontify Finder](https://github.com/Frontify/frontify-finder) library to embed an inline asset picker, authenticates editors via OAuth 2.0, and stores the selected asset metadata as the element's value.
 
-You can inspire yourself by browsing already created integrations [**here**](https://github.com/topics/kontent-ai-integration).
+---
 
-If you wish to include your integration into the mentioned list, please add the **kontent-ai-integration** topic into your github integration repository. 
+## Features
 
-Additional Kontent.ai GitHub resources and tutorials can be found on [kontent-ai.github.io](https://kontent-ai.github.io/).
+- Browse and select assets from your Frontify Digital Asset Management system
+- Preview thumbnails, file names, types, and sizes displayed inside Kontent.ai
+- Supports single or multi-asset selection (configurable per content type)
+- Remove individual assets or clear all selections
+- Read-only mode respects Kontent.ai's disabled state (e.g. published items)
+- Dynamic height — the element iframe expands when the Finder panel is open
 
-# Getting Started
+---
 
-## Running the project
+## Getting Started
 
-The integration is created with [Vite](https://vitejs.dev/). 
+### Prerequisites
 
-1. Install dependencies with `npm ci`.
-2. Run a local development server with `npm run dev`.
-3. To deploy the element you can use the output of running `npm run build` command that you can find in the `dist` folder.
+- A Frontify account with at least one brand/library
+- An OAuth 2.0 application registered in the [Frontify developer portal](https://developer.frontify.com/)
+  - Set the **Redirect URI** to the URL where you will host this custom element
 
-See [Vite guide](https://vitejs.dev/guide/#command-line-interface) for more available commands.
+### Running locally
 
-## Define your Element's API
+1. Install dependencies:
+   ```bash
+   npm ci
+   ```
+2. Start the development server (HTTPS, required by the Custom Element API):
+   ```bash
+   npm run dev
+   ```
+3. Open the printed localhost URL and add it as a custom element in a Kontent.ai content type (see [Configuration](#configuration) below).
 
-There are two main things that you'll need to define.
-* What configuration will your custom element need. (This is provided in the configuration when adding the custom element into a content type)
-* What value will the custom element save. In what format (the value needs to be serialized into string).
+### Building for production
 
-You can define the shape of your configuration in the `src/customElement/config.ts` file along with a validation function that will show the user an error when the provided configuration is not valid.
-
-In the same way you can define the shape of your value in the `src/customElement/value.ts` file along with a parsing function from a string. Usually, the most flexible format is json serialized into the string.
-
-## Define your Element's height handling
-
-The width of the custom element is always the full width of the editing element in the Kontent.ai app. However, the height can be defined by the element itself.
-In the `src/main.tsx` file you can find the usage of the `CustomElementContext` where you can define the height of your element.
-It can either be a specific size in pixels, `"default"` to use the default value or `"dynamic"` to resize the element based on the height of the element's body element.
-
-## Write your Element
-
-You can start building the element in the `src/IntegrationApp.tsx` file where you can find example usage of several utilities defined in this repository that might come in useful.
-
-## Utilities in this repository
-
-### useConfig
-
-Use this hook to get the configuration provided for this custom element.
-The configuration will be valid based on the validation function you defined in `src/customElement/config.ts` and will be of the `Config` type also defined in the file.
-
-### useValue
-
-Use this hook to get the current value of the element and a function to update the value.
-The value will be parsed using the function defined in `src/customElement/value.ts` and will be of the `Value` type also defined in the file.
-Example:
-```ts
-const [value, setValue] = useValue();
+```bash
+npm run build
 ```
 
-### useIsDisabled
+The output is in the `dist/` folder. Host it on any static file host (Vercel, Netlify, GitHub Pages, Azure Static Web Apps, etc.) and use that URL as the custom element URL in Kontent.ai.
 
-This hook indicates whether your element should appear disabled. (e.g. when the item is published or the user doesn't have permission to modify the item)
-It subscribes to changes so the returned value will always be up-to-date.
+---
 
-### useEnvironmentId
+## Configuration
 
-Returns the environment id of this element's content item.
+When adding this element to a content type in Kontent.ai, provide the following JSON in the **Configuration** field:
 
-### useItemInfo
+```json
+{
+  "frontifyDomain": "yourcompany.frontify.com",
+  "clientId": "your-oauth-client-id",
+  "multiSelect": true
+}
+```
 
-Gets information about the element's content item. 
-See the `ItemDetail` type in the `src/customElement/types/customElement.d.ts` file for details of available item information.
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `frontifyDomain` | `string` | Yes | Your Frontify domain, e.g. `mycompany.frontify.com` |
+| `clientId` | `string` | Yes | OAuth 2.0 client ID from your Frontify developer portal |
+| `multiSelect` | `boolean` | No | Allow selecting multiple assets per session. Defaults to `false` |
 
-### useVariantInfo
+---
 
-Gets the element's language id and codename.
+## Stored value
 
-### useElements
+The element stores a JSON object with the following shape:
 
-Use this hook to get values of the specified elements (accepts element codenames). 
-The hook subscribes to element changes so the returned values will always be up-to-date.
+```ts
+{
+  assets: Array<{
+    id: string;
+    title: string;
+    type: string;           // e.g. "IMAGE", "DOCUMENT", "VIDEO"
+    previewUrl: string | null;
+    downloadUrl: string | null;
+    filename: string | null;
+    extension: string | null;
+    width: number | null;
+    height: number | null;
+    size: number | null;    // bytes
+  }>
+}
+```
 
-### promptToSelectItems
+You can read this value from the Kontent.ai Delivery API and use `previewUrl` or `downloadUrl` to render assets in your front end.
 
-Use this function to prompt the user to select content items.
-You can specify whether they should select only one or several.
-The function returns details of the selected items.
+---
 
-### promptToSelectAssets
+## How it works
 
-Use this function to prompt the user to select assets.
-You can specify whether they should select only one or several and whether they should only select images or any asset.
-The function returns details of the selected assets.
+1. The editor clicks **"Select from Frontify"**.
+2. The Frontify Finder library opens an OAuth 2.0 popup (first time only; subsequent visits use cached credentials).
+3. Once authenticated, the Finder renders an inline browsing panel inside the custom element iframe.
+4. The editor selects one or more assets and confirms.
+5. Asset metadata is saved to the element's value in Kontent.ai.
 
-# Structure of the Custom Element
+When `multiSelect` is `true`, each time the editor opens the Finder the newly selected assets are appended to the existing list. When `multiSelect` is `false`, the selection replaces the previous value.
 
-## Static resources in the `index.html` file
+---
 
-Every Kontent.ai custom element needs the [Custom Element API](https://kontent.ai/learn/reference/custom-elements-js-api/) to work properly.
-This custom element is no exception and you can find it linked in the `index.html` template in the root of the repository.
+## Project structure
 
-Additionally, you can find there linked a CSS file from the `public` folder.
-This contains Kontent.ai styling that you can leverage to make your custom element look similar to the rest of the Kontent.ai app.
-It also includes Kontent.ai font.
+```
+src/
+  customElement/
+    types/
+      customElement.d.ts   # Kontent.ai Custom Element API type declarations
+    CustomElementContext.tsx # Core context — wraps CustomElement.init(), height, disabled state
+    EnsureKontentAsParent.tsx # Guards against opening the element outside Kontent.ai
+    config.ts              # Config type (frontifyDomain, clientId, multiSelect) + validator
+    selectors.ts           # Wrappers around the Custom Element API (useElements, promptToSelectAssets, …)
+    value.ts               # Value type (FrontifyAsset[]) + JSON parser
+  types/
+    frontify-finder.d.ts   # TypeScript shim for @frontify/frontify-finder
+    vite-env.d.ts
+  IntegrationApp.tsx       # Main UI — asset grid, empty state, inline Finder panel
+  IntegrationApp.css       # Styles for the Frontify element UI
+  main.tsx                 # React entry point
+public/
+  kontent-ai-app-styles.css  # Kontent.ai UI styles
+index.html                   # Loads the Custom Element API script from Kontent.ai CDN
+```
 
-## `CustomElementContext`
+---
 
-This is the core of the connection to the Custom Element API.
-You can find here the call to the `CustomElement.init` function that initializes the custom element and populates the React context with useful information like the element's value, config and so on.
-It also handles handles height of the custom element using the supplied prop `height`.
+## Available hooks and utilities
 
-## `selectors.ts`
+These are provided by `CustomElementContext` and `selectors.ts` and can be used anywhere inside the element tree.
 
-Here you can find the implementation of most of the wrappers around the Custom Element API.
+| Hook / function | Description |
+|---|---|
+| `useConfig()` | Returns the validated element configuration |
+| `useValue()` | Returns `[value, setValue]` — read and write the element's stored value |
+| `useIsDisabled()` | `true` when the element should be read-only (published item, insufficient permissions) |
+| `useEnvironmentId()` | The Kontent.ai environment ID |
+| `useItemInfo()` | Metadata about the current content item (name, codename, collection, type) |
+| `useVariantInfo()` | The current language variant ID and codename |
+| `useElements(codenames)` | Subscribe to the values of other elements in the same item |
+| `promptToSelectAssets(options)` | Open the Kontent.ai asset picker |
+| `promptToSelectItems(options)` | Open the Kontent.ai content item picker |
 
-# Contributing
+---
 
-For Contributing please see  [`CONTRIBUTING.md`](CONTRIBUTING.md) for more information.
-
-# License
+## License
 
 Distributed under the MIT License. See [`LICENSE.md`](./LICENSE.md) for more information.
 
 
-[contributors-shield]: https://img.shields.io/github/contributors/kontent-ai/custom-element-starter-react.svg?style=for-the-badge
-[contributors-url]: https://github.com/kontent-ai/custom-element-starter-react/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/kontent-ai/custom-element-starter-react.svg?style=for-the-badge
-[forks-url]: https://github.com/kontent-ai/custom-element-starter-react/network/members
-[stars-shield]: https://img.shields.io/github/stars/kontent-ai/custom-element-starter-react.svg?style=for-the-badge
-[stars-url]: https://github.com/kontent-ai/custom-element-starter-react/stargazers
-[issues-shield]: https://img.shields.io/github/issues/kontent-ai/custom-element-starter-react.svg?style=for-the-badge
-[issues-url]:https://github.com/kontent-ai/custom-element-starter-react/issues
 [license-shield]: https://img.shields.io/github/license/kontent-ai/custom-element-starter-react.svg?style=for-the-badge
-[license-url]:https://github.com/kontent-ai/custom-element-starter-react/blob/master/LICENSE.md
+[license-url]: https://github.com/kontent-ai/custom-element-starter-react/blob/master/LICENSE.md
 [discord-shield]: https://img.shields.io/discord/821885171984891914?color=%237289DA&label=Kontent.ai%20Discord&logo=discord&style=for-the-badge
 [discord-url]: https://discord.com/invite/SKCxwPtevJ
