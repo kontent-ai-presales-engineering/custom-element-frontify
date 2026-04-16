@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { create } from '@frontify/frontify-finder';
 import type { FrontifyFinderInstance, FrontifyAsset as FinderAsset } from '@frontify/frontify-finder';
 import { useConfig, useIsDisabled, useValue } from './customElement/CustomElementContext';
@@ -127,6 +127,19 @@ export const IntegrationApp = () => {
       finderInstanceRef.current?.close();
     };
   }, []);
+
+  // Resize the iframe whenever the finder panel opens or closes.
+  // useDynamicHeight in CustomElementContext only re-measures on value changes,
+  // so we drive it manually here.
+  useLayoutEffect(() => {
+    if (isFinderOpen) {
+      // Panel header (~50px) + finder container (560px) + padding
+      CustomElement.setHeight(640);
+    } else {
+      const contentHeight = Math.max(document.documentElement.offsetHeight, 100);
+      CustomElement.setHeight(Math.ceil(contentHeight));
+    }
+  }, [isFinderOpen]);
 
   const openFinder = useCallback(() => {
     if (isFinderOpen || isAuthenticating || isDisabled) return;
