@@ -129,8 +129,7 @@ export const IntegrationApp = () => {
   }, []);
 
   const openFinder = useCallback(() => {
-    const container = finderContainerRef.current;
-    if (!container || isFinderOpen || isAuthenticating || isDisabled) return;
+    if (isFinderOpen || isAuthenticating || isDisabled) return;
 
     setIsAuthenticating(true);
     setIsFinderOpen(true);
@@ -148,7 +147,7 @@ export const IntegrationApp = () => {
       .then((finder) => {
         finderInstanceRef.current = finder;
         setIsAuthenticating(false);
-        finder.mount(container);
+        finder.mount(finderContainerRef.current!);
 
         finder.onAssetsChosen((selectedAssets) => {
           const newAssets = selectedAssets.map(mapAsset);
@@ -255,10 +254,14 @@ export const IntegrationApp = () => {
               Cancel
             </button>
           </div>
-          {/* The Finder library mounts its iframe into this div */}
-          <div className="frontify-finder-container" ref={finderContainerRef} />
         </div>
       )}
+      {/* Always in the DOM so the ref is available when openFinder is called */}
+      <div
+        className="frontify-finder-container"
+        ref={finderContainerRef}
+        style={{ display: isFinderOpen ? 'block' : 'none' }}
+      />
     </div>
   );
 };
