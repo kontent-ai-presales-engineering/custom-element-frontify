@@ -139,7 +139,7 @@ export const IntegrationApp = () => {
     // @frontify/frontify-authenticator package, then resolves once authenticated.
     create({
       clientId: config.clientId,
-      domain: config.frontifyDomain,
+      domain: config.frontifyDomain.replace(/\/+$/, ''),
       options: {
         allowMultiSelect: config.multiSelect ?? false,
         autoClose: true,
